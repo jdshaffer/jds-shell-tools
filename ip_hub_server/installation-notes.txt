@@ -1,0 +1,48 @@
+----------------------------------
+Installing and Running the IP-Hub
+----------------------------------
+2025-06-21
+
+
+
+PREPARE THE ENVIRONMENT
+- Make a directory for the IP-hub to use
+     mkdir ip_hub_server
+
+- Create a Python environment for it (i.e., iphub)
+  (I created my venv folder inside the ip_hub_server folder)
+     python3 -m venv iphub
+
+- Activate the environment
+     source iphub/bin/activate
+
+- Install necessary python modules
+     pip install Flask
+
+- Copy the ip_hub_server.py file into the directory
+
+
+
+
+CONFIGURE TO RUN AS A SYSTEMD SERVICE
+- Edit the ip-hub.service.txt file
+     - Make sure the "User", "WorkingDirectory",
+       and "ExecStart" directories are correct
+
+- Create the ip-hub.services file in /etc/systemd/system
+     sudo nano /etc/systemd/system/ip-hub.service
+
+- Copy-paste the contents from ip-hub.services.txt to
+  the new ip-hub.service file in /etc/systemd/system
+
+
+
+
+START THE SERVER AND TEST IT
+- Reload systemd, enable, and start the service
+     sudo systemctl daemon-reload          # Reload systemd to recognize new service
+     sudo systemctl enable ip-hub.service  # Enable service to start on boot
+     sudo systemctl start ip-hub.service   # Start the service immediately
+
+- Check service status (should return "Active: active (running))"
+     sudo systemctl status ip-hub.service

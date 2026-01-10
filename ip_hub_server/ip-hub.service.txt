@@ -1,0 +1,15 @@
+[Unit]
+Description=Raspberry Pi IP Hub Service
+After=network.target
+
+[Service]
+User=jds
+WorkingDirectory=/home/jds/ip_hub
+ExecStart=/home/jds/ip_hub/iphub/bin/python ip_hub_server.py
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=ip-hub-service
+
+[Install]
+WantedBy=multi-user.target
