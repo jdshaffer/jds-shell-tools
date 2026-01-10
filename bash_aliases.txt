@@ -1,0 +1,40 @@
+# ----------------------------------------------------------------------------------
+# Universal .bash_aliases
+# Jeffrey D. Shaffer
+# Updated -- 2025-12-28
+#
+# Notes:
+#    - Rename to    .bash_aliases
+#    - Be sure to update "Configuration" to match the current machine's needs
+#
+# ----------------------------------------------------------------------------------
+
+
+
+# ----------------------------------------------------------------------------------
+# Configuration
+# ----------------------------------------------------------------------------------
+export machine_name="linux_laptop"      # Local machine name for use with local ip_hub
+${HOME}/jds-programs/send_ip.sh         # Delete for machines outside the ip_hub network
+
+
+
+# ----------------------------------------------------------------------------------
+# Automatically load all personal bash scripts (aliases & functions)
+# ----------------------------------------------------------------------------------
+
+SCRIPTS_DIR="${HOME}/jds-scripts"       # Change this to point to your scripts directory
+
+for script in "$SCRIPTS_DIR"/*.sh; do   # Loop through each .sh file
+    if [[ -f "$script" ]]; then         # Ensure it's a regular file
+        # echo "Sourcing: $script"      # Uncomment to display scripts being loaded
+        source "$script"                # Source each file into the current shell
+    fi
+done
+
+
+
+# ----------------------------------------------------------------------------------
+# Run on Terminal Open
+# ----------------------------------------------------------------------------------
+commands     # displays a list of all my personal programs and aliases
