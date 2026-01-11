@@ -1,12 +1,20 @@
 # ----------------------------------------------------------------------------------
 # Terminal Related Bash Scripts
 # Jeffrey D. Shaffer
-# Updated -- 2025-12-25
+# Updated -- 2026-01-11
 #
 # Notes:
 #   - This script's name starts with an uppercase "T" to make sure it's
 #     run before all the other lower-case scripts. This allows for
 #     custom prompts (such as in dm200-stuff.sh) to be run later.
+#
+# 2025-12-25 -- Added "ambient", a menu of some relaxing-to-watch 
+#               terminal commands (add "watch" on macos with
+#               "brew install watch"), and added macos commands 
+#               to ambient, but will also need to add htop with 
+#               "brew install htop"
+# 2026-01-11 -- Updated ambient to loop
+#            -- Prettified screen-help and ambient with boxes
 #
 # ----------------------------------------------------------------------------------
 
@@ -57,55 +65,59 @@ now(){   # Display the time, day, date, and monthly calendar
 
 
 screen-help(){
-    echo " "
-    echo "------------------------------------------------------"
-    echo " Helpful Screen Commands                              "
-    echo "------------------------------------------------------"
-    echo " "
-    echo " Start a new screen       :  screen -S <session_name> "
-    echo " Detatch from a screen    :  Ctrl-A, D                "
-    echo " List running screens     :  screen -ls               "
-    echo " Rejoin a running screen  :  screen -r <session_name> "
-    echo " "
+    echo
+    echo ".---------------------------------------------------------."
+    echo "|                 Helpful Screen Commands                 |"
+    echo "|---------------------------------------------------------|"
+    echo "|  Start a new screen      :   screen -S <session_name>   |"
+    echo "|  Detatch from a screen   :   Ctrl-A, D                  |"
+    echo "|  List running screens    :   screen -ls                 |"
+    echo "|  Rejoin a running screen :   screen -r <session_name>   |"
+    echo "'---------------------------------------------------------'"
+    echo
     }
 
-ambient(){
-    echo
-    echo "------------------------------------"
-    echo "       Ambient Terminal Modes       "
-    echo "------------------------------------"
-    echo "1) Time passing      (date)"
-    echo "2) System heartbeat  (uptime)"
-    echo "3) Memory breathing  (/proc/meminfo)"
-    echo "4) Virtual Memory    (vmstat)"
-    echo "5) Network trickle   (proc/net/dev)"
-    echo "6) CPU weather       (htop)"
-    echo
-    read -p "Choose (1-6, or Enter to quit): " choice
-    
-    case "$choice" in
-      1) watch -d -n 1 date ;;
-      2) watch -d -n 1 uptime ;;
-      3) if [ "$machine_name" = "mm" ] || [ "$machine_name" = "mba" ]; then
-          watch -d -n 21 "vm_stat | egrep 'Pages free|Pages active|Pages inactive|Pages wired'"
-        else
-          watch -d -n 21 "cat /proc/meminfo"
-        fi ;;
-      4) if [ "$machine_name" = "mm" ] || [ "$machine_name" = "mba" ]; then
-          vm_stat 1
-        else
-          vmstat 1
-        fi ;;
-      5) if [ "$machine_name" = "mm" ] || [ "$machine_name" = "mba" ]; then
-          watch -d -n 1 "netstat -ib | awk 'NR>1 && \$7 ~ /[0-9]/ {printf \"%-8s RX:%10d  TX:%10d\n\", \$1, \$7, \$10}'"
-        else
-          watch -d -n 1 "awk 'NR>2 {printf \"%-8s RX:%10d  TX:%10d\n\", \$1, \$2, \$10}' /proc/net/dev"
-        fi ;;
 
-      6) htop ;;
-      *) exit 0 ;;
-    esac
-   }
+ambient(){
+    while true; do
+        echo
+        echo ".-----------------------------------------."
+        echo "|         Ambient Terminal Modes          |"
+        echo "|-----------------------------------------|"
+        echo "|  1) Time passing       (date)           |"
+        echo "|  2) System heartbeat   (uptime)         |"
+        echo "|  3) Memory breathing   (/proc/meminfo)  |"
+        echo "|  4) Virtual Memory     (vmstat)         |"
+        echo "|  5) Network trickle    (proc/net/dev)   |"
+        echo "|  6) CPU weather        (htop)           |"
+        echo "'-----------------------------------------'"
+        echo
+        read -p "Choose 1-6 or Enter to quit: " choice
+
+        case "$choice" in
+          1) watch -d -n 1 date ;;
+          2) watch -d -n 1 uptime ;;
+          3) if [ "$machine_name" = "mm" ] || [ "$machine_name" = "mba" ]; then
+              watch -d -n 1 "vm_stat | egrep 'Pages free|Pages active|Pages inactive|Pages wired'"
+            else
+              watch -d -n 1 "cat /proc/meminfo"
+            fi ;;
+          4) if [ "$machine_name" = "mm" ] || [ "$machine_name" = "mba" ]; then
+              vm_stat 1
+            else
+              vmstat 1
+            fi ;;
+          5) if [ "$machine_name" = "mm" ] || [ "$machine_name" = "mba" ]; then
+              watch -d -n 1 "netstat -ib | awk 'NR>1 && \$7 ~ /[0-9]/ {printf \"%-8s   RX:%10d     TX:%10d\n\", \$1, \$7, \$10}'"
+            else
+              watch -d -n 1 "awk 'NR>2 {printf \"%-8s   RX:%10d     TX:%10d\n\", \$1, \$2, \$10}' /proc/net/dev"
+            fi ;;
+
+          6) htop ;;
+          *) return 0 ;;
+        esac
+    done
+    }
 
 
 alias c="clear"
