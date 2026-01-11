@@ -25,6 +25,7 @@ These are utilities I use for automation, convenience, and learning on Linux and
 │   └── webcam_streamer.py
 └── jds-scripts
     ├── Terminal-stuff.sh
+    ├── logging-stuff.sh
     ├── network-stuff.sh
     ├── python-stuff.sh
     ├── weather-stuff.sh
