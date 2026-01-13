@@ -7,6 +7,9 @@
 # A simple terminal tool to help me learn more about my local systems.
 # Yes, I like boxes around things. *laugh*
 #
+# 2026-01-13 -- Added the ability to reset (delete) journalctl logs, with a
+#               confirmation dialog.
+#
 # ----------------------------------------------------------------------------------
 
 
@@ -66,9 +69,10 @@ logs(){
             echo "|  8) Kernel Messages (live)   journalctl -kf                   |"
             echo "|  9) Errors and Warnings      journalctl -p warning            |"
             echo "| 10) Boot Errors              journalctl -b -p err             |"
+            echo "| 11) Reset Logs               (USE WITH CAUTION)               |"
             echo "'---------------------------------------------------------------'"
             echo
-            read -p "Choose 1-10 or Enter to quit: " subchoice
+            read -p "Choose 1-11 or Enter to quit: " subchoice
             case "$subchoice" in
                 1) journalctl -f;;
                 2) journalctl -b;;
@@ -80,6 +84,24 @@ logs(){
                 8) journalctl -kf;;
                 9) journalctl -p warning;;
                 10) journalctl -b -p err;;
+                11)
+                    echo
+                    echo "Are you sure you want to reset all logs?"
+                    read -p "Press 1 for yes, any other key to cancel: " deletechoice
+                    case "$deletechoice" in
+                        1)
+                           sudo dmesg -C
+                           sudo systemctl restart systemd-journald
+                           sudo journalctl --rotate
+                           sudo journalctl --vacuum-time=1s
+                           echo
+                           echo "Logs have been reset."
+                           echo;;
+                        *) echo
+                           echo "Reset Cancelled. (Logs have not been touched.)"
+                           echo
+                           return 0;;
+                    esac ;;
                 *) echo
                  return 0;;
             esac ;;
@@ -114,4 +136,3 @@ logs(){
         *) return 0 ;;
     esac
 }
-
