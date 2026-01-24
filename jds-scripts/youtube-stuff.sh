@@ -1,32 +1,42 @@
 # ----------------------------------------------------------------------------------
 # Download Related Bash Scripts
 # Jeffrey D. Shaffer
-# Updated -- 2025-06-20
+# Updated -- 2026-01-24
 #
 # Notes:
 #    - These functions require the program yt-dlp
 #    - yt-dlp can be installed via the terminal
 #          brew install yt-dlp   # MacOS
 #          apt  install yt-dlp   # Linux
+#    - ytmusic also needs the program mpv
+#          brew install mpv      # MacOS
 #
 # ----------------------------------------------------------------------------------
 
 
 downloadmp3(){      # Download the given YouTube video as an MP3 file
-    echo " "
+    echo
     cd ${HOME}/Downloads
     echo "Downloading YouTube as MP3..."
     yt-dlp -x --audio-format mp3 "$1"
-    echo " "
+    echo
     }
 
 
 downloadmp4(){      # Download the given YouTube video as an MP4 file
-    echo " "
+    echo
     cd ${HOME}/Downloads
     echo "Downloading YouTube as MP4..."
     yt-dlp -f "bv*[vcodec^=avc]+ba[ext=m4a]/b[ext=mp4]/b" "$1"
-    echo " "
+    echo
+    }
+
+
+ytmusic(){          # Stream the audio from a YouTube video
+    echo
+    echo "Connecting to YouTube and opening audio stream..."
+    mpv --no-video "$1"
+    echo
     }
 
 
