@@ -4,6 +4,16 @@
 # Jeffrey D. Shaffer & ChatGPT
 # 2026-01-25
 #
+# This bash script watches the MacBook battery level.
+#
+# When the battery is fully charged, it sends out an
+#   email notification, then shutsdown the computer.
+#
+# When battery charging is put on hold by the OS due
+#   to optimized charging, it sends out an email 
+#   notification including the final battery level,
+#   then shutsdown the computer.
+#
 #---------------------------------------------------------
 
 echo 
