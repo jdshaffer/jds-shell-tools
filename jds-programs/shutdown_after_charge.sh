@@ -4,15 +4,16 @@
 # Jeffrey D. Shaffer & ChatGPT
 # 2026-01-25
 #
-# This bash script watches the MacBook battery level.
+# This bash script watches the laptop battery level.
 #
 # When the battery is fully charged, it sends out an
-#   email notification, then shutsdown the computer.
+#   email notification, then shuts down the computer.
 #
 # When battery charging is put on hold by the OS due
-#   to optimized charging, it sends out an email 
-#   notification including the final battery level,
-#   then shutsdown the computer.
+#   to optimized charging, or when the charging halts
+#   at the same level for an hour, it sends out an 
+#   email notification including the final battery
+#   level, then shuts down the computer.
 #
 # Note: For the shutdown command to work under Linux
 #       without requiring a password, you can try
@@ -28,6 +29,9 @@ OS="$(uname)"
 
 
 # ---------- MacOS Code ----------
+# Two shutdown cases:
+#   (1) Battery is 100% charged
+#   (2) Battery charging halts due to battery optimization
 if [ "$OS" = "Darwin" ]; then
     echo "MacOS Detected"
     echo
@@ -62,6 +66,9 @@ if [ "$OS" = "Darwin" ]; then
 
 
 # ---------- Linux Code ----------
+# Two shutdown cases:
+#   (1) Battery is charged to the system-set maximum charged
+#   (2) Battery charging fails to progress for an hour (probably the battery max has been reached)
 elif [ "$OS" = "Linux" ]; then
     echo "Linux Detected"
     echo
@@ -76,6 +83,7 @@ elif [ "$OS" = "Linux" ]; then
     fi
     echo "Shutdown threshold set to: $THRESHOLD%"
 
+    # Counters used to track halted charging
     PREV_BATT=-1
     STABLE_MINUTES=0
 
@@ -84,7 +92,7 @@ elif [ "$OS" = "Linux" ]; then
 
         echo "Battery: $BATT% | Stable: $STABLE_MINUTES min"
 
-        # Case 1 — Hit system threshold directly
+        # Case 1 — Reach the system-set maximum charge
         if [[ "$BATT" -ge "$THRESHOLD" ]]; then
             echo "Battery reached system charge limit ($THRESHOLD%)."
             python3 notify_by_email.py "Asus Shutdown (Max Charge Reached)" \
@@ -93,7 +101,7 @@ elif [ "$OS" = "Linux" ]; then
             exit 0
         fi
 
-        # Case 2 — Battery no longer increasing (plateau detection)
+        # Case 2 — Battery charging fails to progress for an hour
         if [ "$BATT" -le "$PREV_BATT" ]; then
             STABLE_MINUTES=$((STABLE_MINUTES + 1))
         else
@@ -103,7 +111,7 @@ elif [ "$OS" = "Linux" ]; then
         # If stuck for 60 minutes, assume charging is complete
         if [ "$STABLE_MINUTES" -ge 60 ]; then
             echo "Battery has remained at $BATT% for 60 minutes."
-            python3 notify_by_email.py "Asus Shutdown (Charge Plateau)" \
+            python3 notify_by_email.py "Asus Shutdown (Charge Plateau)" 
             "Asus has shutdown after battery remained at $BATT% for one hour. Charging appears complete."
             sudo shutdown now
             exit 0
