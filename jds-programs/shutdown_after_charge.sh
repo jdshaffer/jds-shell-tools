@@ -15,6 +15,9 @@
 #   email notification including the final battery
 #   level, then shuts down the computer.
 #
+# Will warn and exit when run on a system with no
+#   battery (i.e., a desktop computer)
+#
 # Note: For the shutdown command to work under Linux
 #       without requiring a password, you can try
 #       running  "sudo visudo" and then add this
@@ -23,9 +26,12 @@
 #
 #---------------------------------------------------------
 
+
 echo
+echo "Starting the 'Shutdown After Charge' Script..."
 echo "Checking Operating System Type..."
 OS="$(uname)"
+
 
 
 # ---------- MacOS Code ----------
@@ -33,13 +39,20 @@ OS="$(uname)"
 #   (1) Battery is 100% charged
 #   (2) Battery charging halts due to battery optimization
 if [ "$OS" = "Darwin" ]; then
-    echo "MacOS Detected"
+    echo "MacOS Detected."
     echo
         while true; do
             STATUS="$(pmset -g batt)"
 
             # Extract battery percent
             BATT=$(echo "$STATUS" | grep -Eo "\d+%" | tr -d '%')
+
+            if [ -z "$BATT" ]; then
+               echo "WARNING: This computer does not have a battery."
+               echo "Script canceled."
+               echo
+               exit 0
+            fi
 
             echo "Battery: $BATT%"
 
@@ -70,8 +83,15 @@ if [ "$OS" = "Darwin" ]; then
 #   (1) Battery is charged to the system-set maximum charged
 #   (2) Battery charging fails to progress for an hour (probably the battery max has been reached)
 elif [ "$OS" = "Linux" ]; then
-    echo "Linux Detected"
+    echo "Linux Detected."
     echo
+
+    if ! compgen -G "/sys/class/power_supply/BAT*" > /dev/null; then
+       echo "WARNING: This computer does not have a battery."
+       echo "Script canceled."
+       echo
+       exit 0
+    fi
 
     BAT_PATH=$(ls -d /sys/class/power_supply/BAT* | head -n 1)
 
