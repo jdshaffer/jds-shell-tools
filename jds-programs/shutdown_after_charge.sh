@@ -11,7 +11,7 @@
 #
 # When battery charging is put on hold by the OS due
 #   to optimized charging, or when the charging halts
-#   at the same level for an hour, it sends out an 
+#   at the same level for an hour, it sends out an
 #   email notification including the final battery
 #   level, then shuts down the computer.
 #
@@ -61,6 +61,7 @@ if [ "$OS" = "Darwin" ]; then
                 echo "Battery charged."
                 echo "Sending notification and shutting down..."
                 python3 notify_by_email.py "MBA Shutdown (Fully Charged)" "MBA has shutdown after fully charging."
+                sleep 30     # Needed as apparently notify_by_email.py doesn't always connect to gmail right away
                 osascript -e 'tell application "System Events" to shut down'
                 exit 0
             fi
@@ -70,6 +71,7 @@ if [ "$OS" = "Darwin" ]; then
                 echo "Battery charging has been placed on hold (optimization)."
                 echo "Sending notification and shutting down..."
                 python3 notify_by_email.py "MBA Shutdown (Charging on Hold)" "MBA has shutdown after partially charging to $BATT%. Battery optimization has placed charging on hold."
+                sleep 30     # Needed as apparently notify_by_email.py doesn't always connect to gmail right away
                 osascript -e 'tell application "System Events" to shut down'
                 exit 0
             fi
@@ -117,6 +119,7 @@ elif [ "$OS" = "Linux" ]; then
             echo "Battery reached system charge limit ($THRESHOLD%)."
             python3 notify_by_email.py "Asus Shutdown (Max Charge Reached)" \
             "Asus has shutdown after charging to the system-specified maximum of $BATT%."
+            sleep 30     # Needed as apparently notify_by_email.py doesn't always connect to gmail right away
             sudo shutdown now
             exit 0
         fi
@@ -133,6 +136,7 @@ elif [ "$OS" = "Linux" ]; then
             echo "Battery has remained at $BATT% for 60 minutes."
             python3 notify_by_email.py "Asus Shutdown (Charge Plateau)" 
             "Asus has shutdown after battery remained at $BATT% for one hour. Charging appears complete."
+            sleep 30     # Needed as apparently notify_by_email.py doesn't always connect to gmail right away
             sudo shutdown now
             exit 0
         fi
