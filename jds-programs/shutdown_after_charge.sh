@@ -7,12 +7,12 @@
 # This bash script watches the MacBook battery level.
 #
 # When the battery is fully charged, it sends out an
-#   email notification, then shutsdown the computer.
+#   email notification, then shuts down the computer.
 #
 # When battery charging is put on hold by the OS due
 #   to optimized charging, it sends out an email 
 #   notification including the final battery level,
-#   then shutsdown the computer.
+#   then shuts down the computer.
 #
 # Note: For the shutdown command to work under Linux
 #       without requiring a password, you can try
@@ -68,17 +68,24 @@ elif [ "$OS" = "Linux" ]; then
 
     BAT_PATH=$(ls -d /sys/class/power_supply/BAT* | head -n 1)
 
+    # Attempt to read the system-specified maximum charge allowed, otherwise assume 100%
+    if [ -f "$BAT_PATH/charge_control_end_threshold" ]; then
+        THRESHOLD=$(cat "$BAT_PATH/charge_control_end_threshold")
+    else
+        THRESHOLD=100
+    fi
+    echo "Shutdown threshold set to: $THRESHOLD%"
+
     while true; do
         BATT=$(cat "$BAT_PATH/capacity")
         STATUS=$(cat "$BAT_PATH/status")
 
         echo "Battery: $BATT% | Status: $STATUS"
 
-        # Case 1 -- Fully Charged (real signal)
-        if [ "$STATUS" = "Full" ]; then
-            echo "Battery fully charged."
-            python3 notify_by_email.py "Laptop Shutdown (Fully Charged)" \
-            "Laptop has shutdown after fully charging."
+        if [[ "$BATT" -ge "$THRESHOLD" ]]; then
+            echo "Battery reached the allowed maximum charge of ($THRESHOLD%)."
+            echo "Sending notification and shutting down..."
+            python3 notify_by_email.py "Asus Shutdown (Max Charge Reached)" "Asus has shutdown after charging to the system-specified maximum of $BATT%."
             sudo shutdown now
             exit 0
         fi
