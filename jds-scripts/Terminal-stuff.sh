@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------
 # Terminal Related Bash Scripts
 # Jeffrey D. Shaffer
-# Updated -- 2026-01-11
+# Updated -- 2026-01-25
 #
 # Notes:
 #   - This script's name starts with an uppercase "T" to make sure it's
@@ -15,6 +15,9 @@
 #               "brew install htop"
 # 2026-01-11 -- Updated ambient to loop
 #            -- Prettified screen-help and ambient with boxes
+#
+# 2026-01-25 -- Added "winterbear" which points to the shutdown_after_charge.sh
+#               script (just like a bear in the winter, stuff yourself and sleep)
 #
 # ----------------------------------------------------------------------------------
 
@@ -118,6 +121,9 @@ ambient(){
         esac
     done
     }
+
+
+alias winterbear="~/jds-programs/shutdown_after_charge.sh"
 
 
 alias c="clear"
