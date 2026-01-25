@@ -7,12 +7,12 @@
 # This bash script watches the MacBook battery level.
 #
 # When the battery is fully charged, it sends out an
-#   email notification, then shuts down the computer.
+#   email notification, then shutsdown the computer.
 #
 # When battery charging is put on hold by the OS due
 #   to optimized charging, it sends out an email 
 #   notification including the final battery level,
-#   then shuts down the computer.
+#   then shutsdown the computer.
 #
 # Note: For the shutdown command to work under Linux
 #       without requiring a password, you can try
@@ -76,22 +76,43 @@ elif [ "$OS" = "Linux" ]; then
     fi
     echo "Shutdown threshold set to: $THRESHOLD%"
 
+    PREV_BATT=-1
+    STABLE_MINUTES=0
+
     while true; do
         BATT=$(cat "$BAT_PATH/capacity")
-        STATUS=$(cat "$BAT_PATH/status")
 
-        echo "Battery: $BATT% | Status: $STATUS"
+        echo "Battery: $BATT% | Stable: $STABLE_MINUTES min"
 
+        # Case 1 — Hit system threshold directly
         if [[ "$BATT" -ge "$THRESHOLD" ]]; then
-            echo "Battery reached the allowed maximum charge of ($THRESHOLD%)."
-            echo "Sending notification and shutting down..."
-            python3 notify_by_email.py "Asus Shutdown (Max Charge Reached)" "Asus has shutdown after charging to the system-specified maximum of $BATT%."
+            echo "Battery reached system charge limit ($THRESHOLD%)."
+            python3 notify_by_email.py "Asus Shutdown (Max Charge Reached)" \
+            "Asus has shutdown after charging to the system-specified maximum of $BATT%."
             sudo shutdown now
             exit 0
         fi
 
+        # Case 2 — Battery no longer increasing (plateau detection)
+        if [ "$BATT" -le "$PREV_BATT" ]; then
+            STABLE_MINUTES=$((STABLE_MINUTES + 1))
+        else
+            STABLE_MINUTES=0
+        fi
+
+        # If stuck for 60 minutes, assume charging is complete
+        if [ "$STABLE_MINUTES" -ge 60 ]; then
+            echo "Battery has remained at $BATT% for 60 minutes."
+            python3 notify_by_email.py "Asus Shutdown (Charge Plateau)" \
+            "Asus has shutdown after battery remained at $BATT% for one hour. Charging appears complete."
+            sudo shutdown now
+            exit 0
+        fi
+
+        PREV_BATT=$BATT
         sleep 60
     done
+fi
 
 
 # ---------- Unexpected OS Code ----------
