@@ -22,6 +22,7 @@ These are utilities I use for automation, convenience, and learning on Linux and
 │   ├── get_weather_terminal.py
 │   ├── notify_by_email.py
 │   ├── send_ip.sh
+│   ├── shutdown_after_charge.sh
 │   └── webcam_streamer.py
 └── jds-scripts
     ├── Terminal-stuff.sh
