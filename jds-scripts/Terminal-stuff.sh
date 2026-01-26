@@ -8,10 +8,10 @@
 #     run before all the other lower-case scripts. This allows for
 #     custom prompts (such as in dm200-stuff.sh) to be run later.
 #
-# 2025-12-25 -- Added "ambient", a menu of some relaxing-to-watch 
+# 2025-12-25 -- Added "ambient", a menu of some relaxing-to-watch
 #               terminal commands (add "watch" on macos with
-#               "brew install watch"), and added macos commands 
-#               to ambient, but will also need to add htop with 
+#               "brew install watch"), and added macos commands
+#               to ambient, but will also need to add htop with
 #               "brew install htop"
 # 2026-01-11 -- Updated ambient to loop
 #            -- Prettified screen-help and ambient with boxes
@@ -123,7 +123,10 @@ ambient(){
     }
 
 
-alias winterbear="~/jds-programs/shutdown_after_charge.sh"
+winterbear(){
+   cd ~/jds-programs
+   ./shutdown_after_charge.sh
+   }
 
 
 alias c="clear"
