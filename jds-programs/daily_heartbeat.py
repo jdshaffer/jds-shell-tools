@@ -13,11 +13,10 @@
 #
 # 2025-12-20 -- Disabled logging on success, but left logging on error
 # 2025-12-21 -- Updated the email subject and contents to be a bit more fun
-# 2026-01-29 -- Added code to report on the status of custom services and Home Assistant,
+# 2026-01-29 -- Added code to report on the status of custom services and Home Assistant
 #               also prettified the email body using fixed-width html
 #            -- Moved email settings to external file for safety
-#               - First line of file should be the email address
-#               - Second line of file should be your Google App Password
+# 2026-01-30 -- Fixed a "can't find the external file" problem when run as a cronjob
 #
 #--------------------------------------------------------------------------------------------------
 
@@ -32,10 +31,11 @@ import logging
 import subprocess
 
 
-# --- LOAD EMAIL AND APP PASSWORD FROM FILE ---
-SETTINGS_FILE = "notify_by_email_settings.txt"
+# Make sure the file exists (in the same directory as the script)
+import os
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+SETTINGS_FILE = os.path.join(SCRIPT_DIR, "email_settings.txt")
 
-# Make sure the file exists
 if not os.path.exists(SETTINGS_FILE):
     print(f"Error: The settings file '{SETTINGS_FILE}' was not found.")
     print("Please create this file in the same directory as the script with your email and app password on separate lines.")
@@ -152,6 +152,9 @@ Service Status Report
         smtp.starttls(context=context)
         smtp.login(GMAIL_USER, GMAIL_APP_PASSWORD)
         smtp.send_message(msg)
+
+    # --- LOG SUCCESS ---
+    logging.info("Heartbeat email sent successfully.")
 
 except Exception as e:
     logging.error(f"Failed to send heartbeat email: {e}")
