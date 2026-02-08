@@ -1,14 +1,14 @@
 # ----------------------------------------------------------------------------------
 # Download Related Bash Scripts
 # Jeffrey D. Shaffer
-# Updated -- 2026-01-24
+# Updated -- 2026-02-08
 #
 # Notes:
 #    - These functions require the program yt-dlp
 #    - yt-dlp can be installed via the terminal
 #          brew install yt-dlp   # MacOS
 #          apt  install yt-dlp   # Linux
-#    - ytmusic also needs the program mpv
+#    - ytmusic depents on the program mpv
 #          brew install mpv      # MacOS
 #
 # ----------------------------------------------------------------------------------
@@ -32,10 +32,53 @@ downloadmp4(){      # Download the given YouTube video as an MP4 file
     }
 
 
-ytmusic(){          # Stream the audio from a YouTube video
+ytmusic() {
+    set +m   # disable job completion messages
+
+    local timer=""
+    local duration=0
+    local url
+
+    # --- parse optional -t flag ---
+    if [[ "$1" == "-t" ]]; then
+        timer="$2"
+        shift 2
+        url="$1"
+
+        case "$timer" in
+            *h) duration=$(( ${timer%h} * 3600 )) ;;
+            *m) duration=$(( ${timer%m} * 60 )) ;;
+            *s) duration=${timer%s} ;;
+            *)  duration=$timer ;;
+        esac
+    else
+        url="$1"
+    fi
+
     echo
     echo "Connecting to YouTube and opening audio stream..."
-    mpv --no-video "$1"
+    echo "(Tip: Use the -t flag to set a stop timer!)"
+    echo
+
+    if [[ $duration -gt 0 ]]; then
+        (
+            # wait until mpv starts and grab its PID
+            while true; do
+                mpv_pid=$(pgrep -n mpv)
+                [[ -n "$mpv_pid" ]] && break
+                sleep 0.2
+            done
+
+            sleep "$duration"
+            echo
+            echo "The timer has finishd. Stopping playback..."
+            kill -TERM "$mpv_pid" 2>/dev/null
+        ) & disown
+    fi
+
+    # --- run mpv as normal ---
+    mpv --no-video "$url"
+
     echo
     }
 
@@ -94,4 +137,3 @@ say-summ(){         # Have the terminal read the video summary aloud
     say < summary.txt
     echo " "
     }
-
