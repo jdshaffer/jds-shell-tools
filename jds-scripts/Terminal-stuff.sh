@@ -1,23 +1,15 @@
 # ----------------------------------------------------------------------------------
 # Terminal Related Bash Scripts
 # Jeffrey D. Shaffer
-# Updated -- 2026-01-25
+# Updated -- 2026-02-11
 #
 # Notes:
 #   - This script's name starts with an uppercase "T" to make sure it's
 #     run before all the other lower-case scripts. This allows for
 #     custom prompts (such as in dm200-stuff.sh) to be run later.
 #
-# 2025-12-25 -- Added "ambient", a menu of some relaxing-to-watch
-#               terminal commands (add "watch" on macos with
-#               "brew install watch"), and added macos commands
-#               to ambient, but will also need to add htop with
-#               "brew install htop"
-# 2026-01-11 -- Updated ambient to loop
-#            -- Prettified screen-help and ambient with boxes
-#
-# 2026-01-25 -- Added "winterbear" which points to the shutdown_after_charge.sh
-#               script (just like a bear in the winter, stuff yourself and sleep)
+# 2026-02-11
+#   - Added tmux helper functions
 #
 # ----------------------------------------------------------------------------------
 
@@ -52,30 +44,58 @@ commands(){   # Lists all of the user loaded bash aliases and functions
     }
 
 
-mkcd(){   #M ake a directory and cd into it
-  \mkdir -p "$1"
-  cd "$1"
-}
-
-
 now(){   # Display the time, day, date, and monthly calendar
     echo
     date "+  %l:%M%p, %A"
     date "+  %B %e, %Y"
     echo
     cal | grep -E "\b$(date '+%e')\b| "
+    }
+
+
+tmuxnew(){
+    if [[ -z "$1" ]]; then
+        echo "Usage: tmuxnew <session-name>"
+        return 1
+    fi
+    echo "Running: tmux new -s $1"
+    tmux new -s "$1"
 }
 
 
-screen-help(){
+tmuxkill(){
+    read -p "Kill all tmux sessions? (y/N): " ans
+    [[ "$ans" == "y" ]] && tmux kill-server
+    }
+
+
+tmuxhelp(){
     echo
     echo ".---------------------------------------------------------."
-    echo "|                 Helpful Screen Commands                 |"
+    echo "|                  Helpful Tmux Commands                  |"
     echo "|---------------------------------------------------------|"
-    echo "|  Start a new screen      :   screen -S <session_name>   |"
-    echo "|  Detatch from a screen   :   Ctrl-A, D                  |"
-    echo "|  List running screens    :   screen -ls                 |"
-    echo "|  Rejoin a running screen :   screen -r <session_name>   |"
+    echo "|  Start a new session        :   tmux new -s main        |"
+    echo "|  Join a running session     :   tmux attach -t main     |"
+    echo "|  Force-join a session       :   tmux attach -d -t main  |"
+    echo "|  List running sessions      :   tmux ls                 |"
+    echo "|                                                         |"
+    echo "|  Detach from a session      :   Ctrl-b  d               |"
+    echo "|  New window                 :   Ctrl-b  c               |"
+    echo "|  Next / previous window     :   Ctrl-b  n / p           |"
+    echo "|  Jump to window #           :   Ctrl-b  0..9            |"
+    echo "|  Rename window              :   Ctrl-b  ,               |"
+    echo "|  Rename session             :   Ctrl-b  $               |"
+    echo "|                                                         |"
+    echo "|  Split screen horizontally  :   Ctrl-b  %               |"
+    echo "|  Split screen vertically    :   Ctrl-b  \"               |"
+    echo "|  Kill current pane          :   Ctrl-b  x               |"
+    echo "|  Kill current window        :   Ctrl-b  &               |"
+    echo "|                                                         |"
+    echo "|  Move between panes         :   Ctrl-b  ← ↑ ↓ →         |"
+    echo "|  Resize pane                :   Ctrl-b  Ctrl-arrow      |"
+    echo "|  Scroll / copy mode        :   Ctrl-b  [               |"
+    echo "|                                                         |"
+    echo "|  Exit a session             :   exit                    |"
     echo "'---------------------------------------------------------'"
     echo
     }
